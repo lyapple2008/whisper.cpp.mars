@@ -1005,7 +1005,7 @@ int main(int argc, char ** argv) {
     struct whisper_context_params cparams = whisper_context_default_params();
 
     cparams.use_gpu    = params.use_gpu;
-    cparams.flash_attn = params.flash_attn;
+    cparams.flash_attn = params.flash_attn;//mars-note: flash attention是一种self-attention的加速技术
 
     if (!params.dtw.empty()) {
         cparams.dtw_token_timestamps = true;
@@ -1040,7 +1040,7 @@ int main(int argc, char ** argv) {
     // initialize openvino encoder. this has no effect on whisper.cpp builds that don't have OpenVINO configured
     whisper_ctx_init_openvino_encoder(ctx, nullptr, params.openvino_encode_device.c_str(), nullptr);
 
-    if (!params.grammar.empty()) {
+    if (!params.grammar.empty()) {//mars-note：添加语法约束
         auto & grammar = params.grammar_parsed;
         if (is_file_exist(params.grammar.c_str())) {
             // read grammar from file
@@ -1070,6 +1070,7 @@ int main(int argc, char ** argv) {
         std::vector<float> pcmf32;               // mono-channel F32 PCM
         std::vector<std::vector<float>> pcmf32s; // stereo-channel F32 PCM
 
+        // mars-note: 读取PCM数据转换到float32格式，取值范围[-1,1]
         if (!::read_audio_data(fname_inp, pcmf32, pcmf32s, params.diarize)) {
             fprintf(stderr, "error: failed to read audio file '%s'\n", fname_inp.c_str());
             continue;
