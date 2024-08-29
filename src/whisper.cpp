@@ -5435,7 +5435,7 @@ int whisper_full_with_state(
 
     result_all.clear();
 
-    if (n_samples > 0) {
+    if (n_samples > 0) {// mars-todo: 计算log mel spectrogram，结果保存在state->mel
         // compute log mel spectrogram
         if (whisper_pcm_to_mel_with_state(ctx, state, samples, n_samples, params.n_threads) != 0) {
             WHISPER_LOG_ERROR("%s: failed to compute log mel spectrogram\n", __func__);
@@ -5443,6 +5443,7 @@ int whisper_full_with_state(
         }
     }
 
+    // mars-todo: 语言检测
     // auto-detect language if not specified
     if (params.language == nullptr || strlen(params.language) == 0 || strcmp(params.language, "auto") == 0 || params.detect_language) {
         std::vector<float> probs(whisper_lang_max_id() + 1, 0.0f);
@@ -5461,6 +5462,7 @@ int whisper_full_with_state(
         }
     }
 
+    // mars-todo: 怎么理解token?
     if (params.token_timestamps) {
         state->t_beg    = 0;
         state->t_last   = 0;
@@ -5481,6 +5483,7 @@ int whisper_full_with_state(
         return 0;
     }
 
+    // mars-todo: temperatures怎么理解，作用是什么？
     // a set of temperatures to use
     // [ t0, t0 + delta, t0 + 2*delta, ..., < 1.0f + 1e-6f ]
     std::vector<float> temperatures;
@@ -5494,7 +5497,7 @@ int whisper_full_with_state(
 
     // initialize the decoders
     int n_decoders = 1;
-
+    // mars-todo: 两种decoder策略的区别，如何选择？
     switch (params.strategy) {
         case WHISPER_SAMPLING_GREEDY:
             {
@@ -5570,6 +5573,7 @@ int whisper_full_with_state(
     // these tokens determine the task that will be performed
     std::vector<whisper_token> prompt_init = { whisper_token_sot(ctx), };
 
+    // mars-todo: 多语言模型与非多语言模型区别？
     if (whisper_is_multilingual(ctx)) {
         const int lang_id = whisper_lang_id(params.language);
         state->lang_id = lang_id;
@@ -6354,7 +6358,7 @@ int whisper_full_parallel(
         const float * samples,
         int n_samples,
         int n_processors) {
-    if (n_processors == 1) {
+    if (n_processors == 1) {// mars-todo: 是如何指定使用多少个processor?
         return whisper_full(ctx, params, samples, n_samples);
     }
     int ret = 0;
